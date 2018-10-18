@@ -90,8 +90,8 @@ public class NotesCalendarDAOTest {
 		for (int i = 1; i <= 3; i++) {
 			final GregorianDateTime startDateTime = new GregorianDateTime(Calendar.getInstance());
 			final GregorianDateTime endDateTime = new GregorianDateTime(Calendar.getInstance());
-			startDateTime.set(2012, 4, i, 2, 22);
-			endDateTime.set(2012, 4, i, 3, 0);
+			startDateTime.set(2012, 4, i, 2, 22, 0);
+			endDateTime.set(2012, 4, i, 3, 0, 0);
 
 			starts.add(startDateTime);
 
