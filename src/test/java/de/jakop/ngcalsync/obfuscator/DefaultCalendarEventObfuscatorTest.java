@@ -26,11 +26,13 @@
  */
 package de.jakop.ngcalsync.obfuscator;
 
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,6 +73,7 @@ public class DefaultCalendarEventObfuscatorTest {
 
 		final CalendarEvent event = spy(new CalendarEvent());
 		event.setEventType(EventType.MEETING);
+		event.setTitle("Hello Meeting");
 
 		final DefaultCalendarEventObfuscator obfuscator = new DefaultCalendarEventObfuscator(privacySettings);
 
@@ -80,7 +83,7 @@ public class DefaultCalendarEventObfuscatorTest {
 
 		obfuscator.obfuscate(event);
 
-		verify(event, times(1)).setTitle(EventType.MEETING.getName());
+		verify(event, times(1)).setTitle("Hll Mtng");
 		verify(event, times(1)).setLocation("");
 		verify(event, times(1)).setContent("");
 	}
@@ -102,5 +105,23 @@ public class DefaultCalendarEventObfuscatorTest {
 		verifyNoMoreInteractions(event);
 	}
 
+	/**
+	 *
+	 */
+	@Test
+	public void testObfustcateTitle() throws Exception {
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle(""), CoreMatchers.equalTo(""));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle(""), CoreMatchers.equalTo(""));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("A"), CoreMatchers.equalTo(""));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("AB"), CoreMatchers.equalTo("B"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("A B"), CoreMatchers.equalTo(" B"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("AB CD"), CoreMatchers.equalTo("B CD"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle(" AB CD "), CoreMatchers.equalTo(" B CD "));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("xäöüÄÖÜyaeouiAEzIOU"), CoreMatchers.equalTo("xyz"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("-hey-"), CoreMatchers.equalTo("-hy-"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("high-prio"), CoreMatchers.equalTo("hgh-pr"));
+		assertThat(DefaultCalendarEventObfuscator.obfuscateTitle("Brainstorming - Konkrete Schritte \"Kundenkontakt\" Rolle Product Manager"),
+				CoreMatchers.equalTo("Brnstrmng - Knkrt Schrtt \"Kndnkntkt\" Rll Prdct Mngr"));
+	}
 
 }

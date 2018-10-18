@@ -26,6 +26,8 @@
  */
 package de.jakop.ngcalsync.obfuscator;
 
+import java.util.Optional;
+
 import org.apache.commons.lang3.Validate;
 
 import de.jakop.ngcalsync.calendar.CalendarEvent;
@@ -52,7 +54,9 @@ public class DefaultCalendarEventObfuscator implements ICalendarEventObfuscator 
 	@Override
 	public void obfuscate(final CalendarEvent event) {
 		if (!privacySettings.isTransferTitle()) {
-			event.setTitle(event.getEventType().getName());
+			final String title = event.getTitle();
+			final String obfuscatedTitle = Optional.ofNullable(title).map(DefaultCalendarEventObfuscator::obfuscateTitle).orElse(null);
+			event.setTitle(obfuscatedTitle);
 		}
 		if (!privacySettings.isTransferDescription()) {
 			event.setContent(new String());
@@ -60,6 +64,11 @@ public class DefaultCalendarEventObfuscator implements ICalendarEventObfuscator 
 		if (!privacySettings.isTransferLocation()) {
 			event.setLocation(new String());
 		}
+	}
+
+	static String obfuscateTitle(final String title) {
+		return title.replaceAll("[äöüaouieÄÖÜAOUIE]", ""); //$NON-NLS-1$ //$NON-NLS-2$
+
 	}
 
 }
